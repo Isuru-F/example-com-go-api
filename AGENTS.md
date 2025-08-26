@@ -1,0 +1,21 @@
+# Agents guide for this repo
+
+- Commands: build `make build`, run `make run`, deps `make deps` (runs `go mod tidy`), test all `make test` (aka `go test ./...`). No linter configured; use `go vet ./...` optionally.
+- Run a single package test: `go test ./internal/handlers -v`. Run a single test: `go test ./internal/handlers -run ^TestProductCRUD$ -v`.
+- API server entrypoint: see [main.go](file:///Users/isurufonseka/grab/example-ecom-go-api/cmd/main.go). Gin serves on `:8080`. Base path `/api/v1` with products, cart, orders routes.
+- Architecture (3 layers): HTTP handlers -> services -> storage. Handlers in [internal/handlers](file:///Users/isurufonseka/grab/example-ecom-go-api/internal/handlers/product_handler.go), services in [internal/services](file:///Users/isurufonseka/grab/example-ecom-go-api/internal/services/product_service.go), in-memory store in [internal/storage](file:///Users/isurufonseka/grab/example-ecom-go-api/internal/storage/memory.go). Domain types in [models.go](file:///Users/isurufonseka/grab/example-ecom-go-api/internal/models/models.go).
+- Storage is mutex-protected maps with auto-increment IDs; seed data loaded at startup ([seed.go](file:///Users/isurufonseka/grab/example-ecom-go-api/internal/storage/seed.go)). Orders reserve stock and clear cart in one in-memory critical section.
+- Public API summary lives in [README.md](file:///Users/isurufonseka/grab/example-ecom-go-api/README.md). Useful smoke test: `make test-api` (starts server, curls key endpoints).
+- Module and Go version: see [go.mod](file:///Users/isurufonseka/grab/example-ecom-go-api/go.mod) (Go 1.24, module `ecom-book-store-sample-api`, uses `github.com/gin-gonic/gin`).
+- Routing: defined in [main.go](file:///Users/isurufonseka/grab/example-ecom-go-api/cmd/main.go) and mirrored in tests ([handlers_test.go](file:///Users/isurufonseka/grab/example-ecom-go-api/internal/handlers/handlers_test.go)).
+- Handler patterns: bind JSON with `ShouldBindJSON`, validate minimally, return `gin.H{"error": "..."}` on failure; status codes: 200/201/204, 400 for bad input, 404 for missing, 500 for unexpected store errors.
+- Service interfaces intentionally have no `context.Context` (pre-migration style); pass plain values; keep business logic in storage helpers for this demo.
+- JSON: camelCase field tags; request DTOs defined in handlers; responses are model structs; time fields use RFC3339 by default via Gin/encoder.
+- Concurrency: storage methods hold a mutex; clones returned to avoid leaking internal pointers.
+- Tests: use `gin.TestMode`, `httptest`, and helper request function; see [handlers_test.go](file:///Users/isurufonseka/grab/example-ecom-go-api/internal/handlers/handlers_test.go) for examples of CRUD and cart→order flow.
+- Formatting: run `gofmt`/`go fmt` (implied by most editors). No repo-level lint config (golangci-lint) present.
+- Import style: standard library first, then external, then local `ecom-book-store-sample-api/...`. Keep groups separated.
+- Naming: exported domain types (`Product`, `Order`), unexported handler DTOs (`productInput`), receiver names short (`h`, `s`, `m`).
+- Error handling: propagate `error` up layers; do not panic; map to HTTP in handlers; avoid logging in handlers (server logs only on startup).
+- Environment/config: fixed port `:8080`; no env/config system; all in-memory; restarting resets state.
+- No Cursor/Claude/Windsurf/Cline/Goose/Copilot rule files detected; none to include.

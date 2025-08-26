@@ -1,0 +1,40 @@
+# Binaries and build artifacts
+bin/
+build/
+dist/
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Test and coverage outputs
+*.test
+*.out
+coverage.*
+*.coverprofile
+
+# Logs
+*.log
+firebase-debug.log
+
+# Environment/config
+.env
+.env.*
+
+# IDE/editor settings
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# Go workspace files (optional to track)
+go.work
+go.work.sum
+
+# Vendor (not used; ignore if accidentally created)
+vendor/
+
+# Temporary files
+.tmp/
+.tmp*/
