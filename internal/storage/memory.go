@@ -86,14 +86,16 @@ func (m *MemoryStore) CreateProduct(p *models.Product) (*models.Product, error) 
 	p.CreatedAt = now
 	p.UpdatedAt = now
 	m.products[p.ID] = &models.Product{
-		ID:          p.ID,
-		Title:       p.Title,
-		Author:      p.Author,
-		Description: p.Description,
-		Price:       p.Price,
-		Stock:       p.Stock,
-		CreatedAt:   p.CreatedAt,
-		UpdatedAt:   p.UpdatedAt,
+		ID:           p.ID,
+		Title:        p.Title,
+		Author:       p.Author,
+		Description:  p.Description,
+		Price:        p.Price,
+		Stock:        p.Stock,
+		Discontinued: p.Discontinued,
+		IsSpecial:    p.IsSpecial,
+		CreatedAt:    p.CreatedAt,
+		UpdatedAt:    p.UpdatedAt,
 	}
 	return cloneProduct(m.products[p.ID]), nil
 }
@@ -110,6 +112,8 @@ func (m *MemoryStore) UpdateProduct(id uint, update *models.Product) (*models.Pr
 	existing.Description = update.Description
 	existing.Price = update.Price
 	existing.Stock = update.Stock
+	existing.Discontinued = update.Discontinued
+	existing.IsSpecial = update.IsSpecial
 	existing.UpdatedAt = time.Now()
 	return cloneProduct(existing), nil
 }
@@ -122,6 +126,20 @@ func (m *MemoryStore) DeleteProduct(id uint) error {
 	}
 	delete(m.products, id)
 	return nil
+}
+
+// Helper: check if a product is present in any cart
+func (m *MemoryStore) IsProductInAnyCart(productID uint) bool {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+	for _, c := range m.carts {
+		for _, it := range c.Items {
+			if it.ProductID == productID {
+				return true
+			}
+		}
+	}
+	return false
 }
 
 // Carts
@@ -159,7 +177,7 @@ func (m *MemoryStore) AddToCart(userID, productID uint, quantity int) (*models.C
 		}
 	}
 	if !found {
-		c.Items = append(c.Items, models.CartItem{ProductID: productID, Quantity: quantity})
+		c.Items = append(c.Items, models.CartItem{ProductID: productID, Quantity: quantity, UnitPrice: p.Price})
 	}
 	// Optional soft check: cap at available stock but do not fail
 	if cItemQty := cartQtyForProduct(c, productID); cItemQty > p.Stock {
@@ -217,6 +235,19 @@ func (m *MemoryStore) CreateOrder(o *models.Order) (*models.Order, error) {
 	return cloneOrder(m.orders[o.ID]), nil
 }
 
+func (m *MemoryStore) GetOrdersByUser(userID uint) ([]*models.Order, error) {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+	res := make([]*models.Order, 0)
+	for _, o := range m.orders {
+		if o.UserID == userID {
+			res = append(res, cloneOrder(o))
+		}
+	}
+	sort.Slice(res, func(i, j int) bool { return res[i].CreatedAt.Before(res[j].CreatedAt) })
+	return res, nil
+}
+
 // Business helpers used by services
 func (m *MemoryStore) ReserveStockForOrder(userID uint) (*models.Order, error) {
 	m.mu.Lock()
@@ -224,6 +255,14 @@ func (m *MemoryStore) ReserveStockForOrder(userID uint) (*models.Order, error) {
 	c, ok := m.carts[userID]
 	if !ok || len(c.Items) == 0 {
 		return nil, errors.New("cart is empty")
+	}
+	// Enforce special item alone
+	if len(c.Items) > 1 {
+		for _, it := range c.Items {
+			if p, ok := m.products[it.ProductID]; ok && p.IsSpecial {
+				return nil, errors.New("special items must be purchased alone")
+			}
+		}
 	}
 	// Validate and reserve (decrement stock)
 	items := make([]models.OrderItem, 0, len(c.Items))
@@ -235,6 +274,12 @@ func (m *MemoryStore) ReserveStockForOrder(userID uint) (*models.Order, error) {
 		}
 		if it.Quantity <= 0 {
 			return nil, errors.New("invalid cart item quantity")
+		}
+		if p.IsSpecial && it.Quantity != 1 {
+			return nil, errors.New("special items must have quantity 1")
+		}
+		if p.Price != 0 && it.UnitPrice != 0 && it.UnitPrice != p.Price {
+			return nil, errors.New("prices changed, refresh cart")
 		}
 		if p.Stock < it.Quantity {
 			return nil, errors.New("insufficient stock for product")

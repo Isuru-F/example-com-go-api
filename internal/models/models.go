@@ -9,19 +9,22 @@ type User struct {
 }
 
 type Product struct {
-	ID          uint      `json:"id"`
-	Title       string    `json:"title"`
-	Author      string    `json:"author"`
-	Description string    `json:"description"`
-	Price       float64   `json:"price"`
-	Stock       int       `json:"stock"`
-	CreatedAt   time.Time `json:"createdAt"`
-	UpdatedAt   time.Time `json:"updatedAt"`
+	ID           uint      `json:"id"`
+	Title        string    `json:"title"`
+	Author       string    `json:"author"`
+	Description  string    `json:"description"`
+	Price        float64   `json:"price"`
+	Stock        int       `json:"stock"`
+	Discontinued bool      `json:"discontinued"`
+	IsSpecial    bool      `json:"isSpecial"`
+	CreatedAt    time.Time `json:"createdAt"`
+	UpdatedAt    time.Time `json:"updatedAt"`
 }
 
 type CartItem struct {
-	ProductID uint `json:"productId"`
-	Quantity  int  `json:"quantity"`
+	ProductID uint    `json:"productId"`
+	Quantity  int     `json:"quantity"`
+	UnitPrice float64 `json:"unitPrice"`
 }
 
 type Cart struct {

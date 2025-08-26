@@ -7,20 +7,24 @@ import (
 // Product DTOs
 
 type CreateProductRequest struct {
-	Title       string  `json:"title"`
-	Author      string  `json:"author"`
-	Description string  `json:"description"`
-	Price       float64 `json:"price"`
-	Stock       int     `json:"stock"`
+	Title        string  `json:"title"`
+	Author       string  `json:"author"`
+	Description  string  `json:"description"`
+	Price        float64 `json:"price"`
+	Stock        int     `json:"stock"`
+	Discontinued bool    `json:"discontinued"`
+	IsSpecial    bool    `json:"isSpecial"`
 }
 
 type UpdateProductRequest struct {
-	ID          uint    `json:"id"`
-	Title       string  `json:"title"`
-	Author      string  `json:"author"`
-	Description string  `json:"description"`
-	Price       float64 `json:"price"`
-	Stock       int     `json:"stock"`
+	ID           uint    `json:"id"`
+	Title        string  `json:"title"`
+	Author       string  `json:"author"`
+	Description  string  `json:"description"`
+	Price        float64 `json:"price"`
+	Stock        int     `json:"stock"`
+	Discontinued bool    `json:"discontinued"`
+	IsSpecial    bool    `json:"isSpecial"`
 }
 
 type GetProductRequest struct { ID uint `json:"id"` }

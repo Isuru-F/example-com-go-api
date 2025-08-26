@@ -40,3 +40,28 @@ func TestProductService_CRUD(t *testing.T) {
 		t.Fatalf("expected error after delete")
 	}
 }
+
+func TestProductService_ValidationsAndDeleteGuard(t *testing.T) {
+	ctx := context.Background()
+	store := storage.NewMemoryStore()
+	storage.Seed(store)
+	svc := NewProductService(store)
+
+	// invalid price
+	if _, err := svc.CreateProduct(ctx, &dto.CreateProductRequest{Title: "X", Author: "A", Description: "", Price: 0, Stock: 1}); err == nil {
+		t.Fatalf("expected error for price out of bounds")
+	}
+	// invalid title
+	if _, err := svc.CreateProduct(ctx, &dto.CreateProductRequest{Title: "", Author: "A", Description: "", Price: 1, Stock: 1}); err == nil {
+		t.Fatalf("expected error for invalid title")
+	}
+	// delete guard when in cart
+	cartSvc := NewCartService(store)
+	created, err := svc.CreateProduct(ctx, &dto.CreateProductRequest{Title: "Y", Author: "A", Description: "", Price: 10, Stock: 5})
+	if err != nil { t.Fatalf("create: %v", err) }
+	if _, err := cartSvc.AddToCart(ctx, &dto.AddToCartRequest{UserID: 1, ProductID: created.ID, Quantity: 1}); err != nil { t.Fatalf("add: %v", err) }
+	if err := svc.DeleteProduct(ctx, &dto.DeleteProductRequest{ID: created.ID}); err == nil {
+		t.Fatalf("expected delete guard error")
+	}
+}
+
