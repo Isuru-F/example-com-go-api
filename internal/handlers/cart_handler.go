@@ -5,6 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
+	"ecom-book-store-sample-api/internal/dto"
 	"ecom-book-store-sample-api/internal/services"
 )
 
@@ -24,9 +25,10 @@ type removeFromCartRequest struct {
 func (h *CartHandler) AddToCart(c *gin.Context) {
 	userID, err := parseUint(c.Param("id"))
 	if err != nil { c.JSON(http.StatusBadRequest, gin.H{"error": "invalid user id"}); return }
-	var req addToCartRequest
-	if err := c.ShouldBindJSON(&req); err != nil { c.JSON(http.StatusBadRequest, gin.H{"error": "invalid body"}); return }
-	cart, err := h.svc.AddToCart(userID, req.ProductID, req.Quantity)
+	var body addToCartRequest
+	if err := c.ShouldBindJSON(&body); err != nil { c.JSON(http.StatusBadRequest, gin.H{"error": "invalid body"}); return }
+	req := &dto.AddToCartRequest{UserID: userID, ProductID: body.ProductID, Quantity: body.Quantity}
+	cart, err := h.svc.AddToCart(c.Request.Context(), req)
 	if err != nil { c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()}); return }
 	c.JSON(http.StatusOK, cart)
 }
@@ -34,9 +36,10 @@ func (h *CartHandler) AddToCart(c *gin.Context) {
 func (h *CartHandler) RemoveFromCart(c *gin.Context) {
 	userID, err := parseUint(c.Param("id"))
 	if err != nil { c.JSON(http.StatusBadRequest, gin.H{"error": "invalid user id"}); return }
-	var req removeFromCartRequest
-	if err := c.ShouldBindJSON(&req); err != nil { c.JSON(http.StatusBadRequest, gin.H{"error": "invalid body"}); return }
-	cart, err := h.svc.RemoveFromCart(userID, req.ProductID)
+	var body removeFromCartRequest
+	if err := c.ShouldBindJSON(&body); err != nil { c.JSON(http.StatusBadRequest, gin.H{"error": "invalid body"}); return }
+	req := &dto.RemoveFromCartRequest{UserID: userID, ProductID: body.ProductID}
+	cart, err := h.svc.RemoveFromCart(c.Request.Context(), req)
 	if err != nil { c.JSON(http.StatusNotFound, gin.H{"error": err.Error()}); return }
 	c.JSON(http.StatusOK, cart)
 }
