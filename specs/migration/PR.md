@@ -161,3 +161,5 @@ Raw outputs above (exports and rule counts per method) are included for independ
 
 
 **Direct report link:** https://github.com/Isuru-F/example-com-go-api/blob/chore/migrate-endpoint-generics-with-impldrift/specs/migration/impldrift_check.md
+
+- Per-branch comparison (main vs migration): extracted methods via AST and compared per-method rule counts (tree-sitter, deterministic). Also ran impldrift validate (expected signature shape differences) to ensure findings are consistent. See the full report here: https://github.com/Isuru-F/example-com-go-api/blob/chore/migrate-endpoint-generics-with-impldrift/specs/migration/impldrift_check.md
