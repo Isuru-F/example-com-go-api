@@ -1,5 +1,19 @@
 # Migrate services to endpoint-style generics; add tree-sitter validation (impldrift); update tests/handlers
 
+## Signatures before/after (core services)
+
+ProductService
+- Before: `func (s *ProductService) CreateProduct(ctx context.Context, req *dto.CreateProductRequest) (*dto.Product, error)`
+- After:  `func (s *ProductService) CreateProduct(ctx context.Context, req *endpoint.HTTPRequest[*dto.CreateProductRequest]) (*endpoint.HTTPResponse[*dto.Product], error)`
+
+CartService
+- Before: `func (s *CartService) AddToCart(ctx context.Context, req *dto.AddToCartRequest) (*dto.Cart, error)`
+- After:  `func (s *CartService) AddToCart(ctx context.Context, req *endpoint.HTTPRequest[*dto.AddToCartRequest]) (*endpoint.HTTPResponse[*dto.Cart], error)`
+
+OrderService
+- Before: `func (s *OrderService) PlaceOrder(ctx context.Context, req *dto.PlaceOrderRequest) (*dto.Order, error)`
+- After:  `func (s *OrderService) PlaceOrder(ctx context.Context, req *endpoint.HTTPRequest[*dto.PlaceOrderRequest]) (*endpoint.HTTPResponse[*dto.Order], error)`
+
 ## 1) What changed and why (high level)
 - Updated all service method signatures to use endpoint-style generics (request/response), and minimally adjusted handlers and tests to call the new API.
 - Added a tree-sitter based CLI (impldrift) to validate signatures, detect business-rule drift, and check API surface scope.
@@ -17,6 +31,7 @@ Scope-limited to signature change and necessary handler/test adaptations, with n
 
 ### Build output
 ```
+ecom-book-store-sample-api/internal/endpoint
 
 ```
 
@@ -42,22 +57,62 @@ validation OK
 
 Baseline exports (from pre-migration c685680c5):
 ```json
-["CartService.AddToCart","CartService.GetCart","CartService.RemoveFromCart","OrderService.PlaceOrder","ProductService.CreateProduct","ProductService.DeleteProduct","ProductService.GetProduct","ProductService.ListProducts","ProductService.UpdateProduct"]
+[
+  "CartService.AddToCart",
+  "CartService.GetCart",
+  "CartService.RemoveFromCart",
+  "OrderService.PlaceOrder",
+  "ProductService.CreateProduct",
+  "ProductService.DeleteProduct",
+  "ProductService.GetProduct",
+  "ProductService.ListProducts",
+  "ProductService.UpdateProduct"
+]
 ```
 
 Current exports (after migration):
 ```json
-["CartService.AddToCart","CartService.GetCart","CartService.RemoveFromCart","OrderService.PlaceOrder","ProductService.CreateProduct","ProductService.DeleteProduct","ProductService.GetProduct","ProductService.ListProducts","ProductService.UpdateProduct"]
+[
+  "CartService.AddToCart",
+  "CartService.GetCart",
+  "CartService.RemoveFromCart",
+  "OrderService.PlaceOrder",
+  "ProductService.CreateProduct",
+  "ProductService.DeleteProduct",
+  "ProductService.GetProduct",
+  "ProductService.ListProducts",
+  "ProductService.UpdateProduct"
+]
 ```
 
 Baseline rule counts (by method):
 ```json
-[{"method":"(s *CartService).AddToCart","count":7},{"method":"(s *CartService).GetCart","count":0},{"method":"(s *CartService).RemoveFromCart","count":0},{"method":"(s *OrderService).PlaceOrder","count":9},{"method":"(s *ProductService).CreateProduct","count":0},{"method":"(s *ProductService).DeleteProduct","count":0},{"method":"(s *ProductService).GetProduct","count":0},{"method":"(s *ProductService).ListProducts","count":0},{"method":"(s *ProductService).UpdateProduct","count":0}]
+[
+  {"method":"(s *CartService).AddToCart","count":7},
+  {"method":"(s *CartService).GetCart","count":0},
+  {"method":"(s *CartService).RemoveFromCart","count":0},
+  {"method":"(s *OrderService).PlaceOrder","count":9},
+  {"method":"(s *ProductService).CreateProduct","count":0},
+  {"method":"(s *ProductService).DeleteProduct","count":0},
+  {"method":"(s *ProductService).GetProduct","count":0},
+  {"method":"(s *ProductService).ListProducts","count":0},
+  {"method":"(s *ProductService).UpdateProduct","count":0}
+]
 ```
 
 Current rule counts (by method):
 ```json
-[{"method":"(s *CartService).AddToCart","count":7},{"method":"(s *CartService).GetCart","count":0},{"method":"(s *CartService).RemoveFromCart","count":0},{"method":"(s *OrderService).PlaceOrder","count":9},{"method":"(s *ProductService).CreateProduct","count":0},{"method":"(s *ProductService).DeleteProduct","count":0},{"method":"(s *ProductService).GetProduct","count":0},{"method":"(s *ProductService).ListProducts","count":0},{"method":"(s *ProductService).UpdateProduct","count":0}]
+[
+  {"method":"(s *CartService).AddToCart","count":7},
+  {"method":"(s *CartService).GetCart","count":0},
+  {"method":"(s *CartService).RemoveFromCart","count":0},
+  {"method":"(s *OrderService).PlaceOrder","count":9},
+  {"method":"(s *ProductService).CreateProduct","count":0},
+  {"method":"(s *ProductService).DeleteProduct","count":0},
+  {"method":"(s *ProductService).GetProduct","count":0},
+  {"method":"(s *ProductService).ListProducts","count":0},
+  {"method":"(s *ProductService).UpdateProduct","count":0}
+]
 ```
 
 ### How the business logic was checked (process)
