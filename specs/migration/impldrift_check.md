@@ -21,3 +21,10 @@ exit status 1
 Observations:
 - Numeric threshold/operator drift was detected (<= vs <; 10 vs 1) in AddToCart.
 - Removal of the boolean `p.Discontinued` check is not flagged because impldrift currently filters to numeric relational comparisons. This is a known limitation we can address if required.
+
+
+## Deterministic per-method verification (migration vs baseline)
+
+| Method | Signature/Scope | Rule count (baseline -> current) |
+|---|---|---|
+| . | OK (validate) | 0 -> 0 |
