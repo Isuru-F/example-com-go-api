@@ -145,3 +145,7 @@ Raw outputs above (exports and rule counts per method) are included for independ
 - Validate against pre-migration (on demand):
   - `go run ./specs/migration/tools/impldrift extract --dir $(mktemp -d)/<checkout@c685680c5> --out /tmp/pre.json`
   - `go run ./specs/migration/tools/impldrift validate --baseline /tmp/pre.json --dir .`
+
+
+## Impldrift sanity check
+- See [specs/migration/impldrift_check.md](specs/migration/impldrift_check.md) for an intentional drift test and the validator output.
