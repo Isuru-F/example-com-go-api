@@ -43,3 +43,19 @@ Observations:
 | (s *ProductService).GetProduct | 0 -> 0 |
 | (s *ProductService).ListProducts | 0 -> 0 |
 | (s *ProductService).UpdateProduct | 0 -> 0 |
+
+## Constants drift check (in migration branch)
+
+Edited [rules.go](internal/services/rules.go) in the migration branch:
+- MaxDistinctCartItems: 3 -> 4
+- CartRiskLimitTotal: 5000.0 -> 6000.0
+- MinOrderAmount: 5.0 -> 6.0
+
+Command:
+VALIDATION FAILURES:
+-  rule drift (s *OrderService).PlaceOrder[6]: total < MinOrderAmount -> total < MinOrderAmount
+-  rule drift (s *CartService).AddToCart[0]: len(cart.Items) >= MaxDistinctCartItems -> len(cart.Items) >= MaxDistinctCartItems
+-  rule drift (s *CartService).AddToCart[6]: total > CartRiskLimitTotal -> total > CartRiskLimitTotal
+
+Validator output:
+
