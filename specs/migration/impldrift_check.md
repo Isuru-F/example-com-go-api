@@ -28,3 +28,18 @@ Observations:
 | Method | Signature/Scope | Rule count (baseline -> current) |
 |---|---|---|
 | . | OK (validate) | 0 -> 0 |
+
+
+## Per-method rule comparison (keys union)
+
+| Method | Rule count (baseline -> current) |
+|---|---|
+| (s *CartService).AddToCart | 7 -> 7 |
+| (s *CartService).GetCart | 0 -> 0 |
+| (s *CartService).RemoveFromCart | 0 -> 0 |
+| (s *OrderService).PlaceOrder | 9 -> 9 |
+| (s *ProductService).CreateProduct | 0 -> 0 |
+| (s *ProductService).DeleteProduct | 0 -> 0 |
+| (s *ProductService).GetProduct | 0 -> 0 |
+| (s *ProductService).ListProducts | 0 -> 0 |
+| (s *ProductService).UpdateProduct | 0 -> 0 |
