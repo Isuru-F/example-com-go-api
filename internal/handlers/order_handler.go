@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"ecom-book-store-sample-api/internal/dto"
+	"ecom-book-store-sample-api/internal/endpoint"
 	"ecom-book-store-sample-api/internal/services"
 )
 
@@ -16,7 +17,7 @@ func NewOrderHandler(svc *services.OrderService) *OrderHandler { return &OrderHa
 func (h *OrderHandler) PlaceOrder(c *gin.Context) {
 	userID, err := parseUint(c.Param("id"))
 	if err != nil { c.JSON(http.StatusBadRequest, gin.H{"error": "invalid user id"}); return }
-	order, err := h.svc.PlaceOrder(c.Request.Context(), &dto.PlaceOrderRequest{UserID: userID})
+	resp, err := h.svc.PlaceOrder(c.Request.Context(), &endpoint.HTTPRequest[*dto.PlaceOrderRequest]{Body: &dto.PlaceOrderRequest{UserID: userID}})
 	if err != nil { c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()}); return }
-	c.JSON(http.StatusCreated, order)
+	c.JSON(http.StatusCreated, resp.Body)
 }

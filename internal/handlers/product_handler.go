@@ -9,6 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"ecom-book-store-sample-api/internal/dto"
+	"ecom-book-store-sample-api/internal/endpoint"
 	"ecom-book-store-sample-api/internal/services"
 )
 
@@ -44,9 +45,9 @@ func allowProductMutation(limit int, window time.Duration) bool {
 }
 
 func (h *ProductHandler) ListProducts(c *gin.Context) {
-	items, err := h.svc.ListProducts(c.Request.Context(), &dto.ListProductsRequest{})
+	resp, err := h.svc.ListProducts(c.Request.Context(), &endpoint.HTTPRequest[*dto.ListProductsRequest]{Body: &dto.ListProductsRequest{}})
 	if err != nil { c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()}); return }
-	c.JSON(http.StatusOK, items)
+	c.JSON(http.StatusOK, resp.Body)
 }
 
 func (h *ProductHandler) CreateProduct(c *gin.Context) {
@@ -54,17 +55,17 @@ func (h *ProductHandler) CreateProduct(c *gin.Context) {
 	var in productInput
 	if err := c.ShouldBindJSON(&in); err != nil { c.JSON(http.StatusBadRequest, gin.H{"error": "invalid body"}); return }
 	req := &dto.CreateProductRequest{Title: in.Title, Author: in.Author, Description: in.Description, Price: in.Price, Stock: in.Stock, Discontinued: in.Discontinued, IsSpecial: in.IsSpecial}
-	created, err := h.svc.CreateProduct(c.Request.Context(), req)
+	resp, err := h.svc.CreateProduct(c.Request.Context(), &endpoint.HTTPRequest[*dto.CreateProductRequest]{Body: req})
 	if err != nil { c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()}); return }
-	c.JSON(http.StatusCreated, created)
+	c.JSON(http.StatusCreated, resp.Body)
 }
 
 func (h *ProductHandler) GetProduct(c *gin.Context) {
 	id, err := parseUint(c.Param("id"))
 	if err != nil { c.JSON(http.StatusBadRequest, gin.H{"error": "invalid id"}); return }
-	p, err := h.svc.GetProduct(c.Request.Context(), &dto.GetProductRequest{ID: id})
+	resp, err := h.svc.GetProduct(c.Request.Context(), &endpoint.HTTPRequest[*dto.GetProductRequest]{Body: &dto.GetProductRequest{ID: id}})
 	if err != nil { c.JSON(http.StatusNotFound, gin.H{"error": err.Error()}); return }
-	c.JSON(http.StatusOK, p)
+	c.JSON(http.StatusOK, resp.Body)
 }
 
 func (h *ProductHandler) UpdateProduct(c *gin.Context) {
@@ -74,15 +75,15 @@ func (h *ProductHandler) UpdateProduct(c *gin.Context) {
 	var in productInput
 	if err := c.ShouldBindJSON(&in); err != nil { c.JSON(http.StatusBadRequest, gin.H{"error": "invalid body"}); return }
 	req := &dto.UpdateProductRequest{ID: id, Title: in.Title, Author: in.Author, Description: in.Description, Price: in.Price, Stock: in.Stock, Discontinued: in.Discontinued, IsSpecial: in.IsSpecial}
-	updated, err := h.svc.UpdateProduct(c.Request.Context(), req)
+	resp, err := h.svc.UpdateProduct(c.Request.Context(), &endpoint.HTTPRequest[*dto.UpdateProductRequest]{Body: req})
 	if err != nil { c.JSON(http.StatusNotFound, gin.H{"error": err.Error()}); return }
-	c.JSON(http.StatusOK, updated)
+	c.JSON(http.StatusOK, resp.Body)
 }
 
 func (h *ProductHandler) DeleteProduct(c *gin.Context) {
 	id, err := parseUint(c.Param("id"))
 	if err != nil { c.JSON(http.StatusBadRequest, gin.H{"error": "invalid id"}); return }
-	if err := h.svc.DeleteProduct(c.Request.Context(), &dto.DeleteProductRequest{ID: id}); err != nil { c.JSON(http.StatusNotFound, gin.H{"error": err.Error()}); return }
+	if _, err := h.svc.DeleteProduct(c.Request.Context(), &endpoint.HTTPRequest[*dto.DeleteProductRequest]{Body: &dto.DeleteProductRequest{ID: id}}); err != nil { c.JSON(http.StatusNotFound, gin.H{"error": err.Error()}); return }
 	c.Status(http.StatusNoContent)
 }
 

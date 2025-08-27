@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"ecom-book-store-sample-api/internal/dto"
+	"ecom-book-store-sample-api/internal/endpoint"
 	"ecom-book-store-sample-api/internal/storage"
 )
 
@@ -13,10 +14,10 @@ type OrderService struct { store *storage.MemoryStore }
 
 func NewOrderService(store *storage.MemoryStore) *OrderService { return &OrderService{store: store} }
 
-func (s *OrderService) PlaceOrder(ctx context.Context, req *dto.PlaceOrderRequest) (*dto.Order, error) {
+func (s *OrderService) PlaceOrder(ctx context.Context, req *endpoint.HTTPRequest[*dto.PlaceOrderRequest]) (*endpoint.HTTPResponse[*dto.Order], error) {
 	_ = ctx
 	// Duplicate order guard
-	orders, _ := s.store.GetOrdersByUser(req.UserID)
+	orders, _ := s.store.GetOrdersByUser(req.Body.UserID)
 	if len(orders) > 0 {
 		last := orders[len(orders)-1]
 		if time.Since(last.CreatedAt) <= time.Duration(DuplicateOrderWindowSec)*time.Second {
@@ -24,7 +25,7 @@ func (s *OrderService) PlaceOrder(ctx context.Context, req *dto.PlaceOrderReques
 		}
 	}
 	// Validate cart and compute total without mutating stock/cart
-	cart, err := s.store.GetCartByUser(req.UserID)
+	cart, err := s.store.GetCartByUser(req.Body.UserID)
 	if err != nil { return nil, err }
 	if len(cart.Items) == 0 { return nil, errors.New("cart is empty") }
 	// Special item alone check
@@ -57,12 +58,14 @@ func (s *OrderService) PlaceOrder(ctx context.Context, req *dto.PlaceOrderReques
 	}
 	if todayTotal+total > DailyUserSpendCap { return nil, errors.New("daily spend limit reached") }
 	// Reserve stock and create order
-	order, err := s.store.ReserveStockForOrder(req.UserID)
+	order, err := s.store.ReserveStockForOrder(req.Body.UserID)
 	if err != nil { return nil, err }
 	if order.Total > HighValueReviewThreshold {
 		order.Status = "PENDING_REVIEW"
 	}
-	return s.store.CreateOrder(order)
+	out, err := s.store.CreateOrder(order)
+	if err != nil { return nil, err }
+	return &endpoint.HTTPResponse[*dto.Order]{Body: out}, nil
 }
 
 func sameDay(a, b time.Time) bool {
