@@ -59,3 +59,11 @@ VALIDATION FAILURES:
 
 Validator output:
 
+
+\n\n## Main vs Migration (per-method business-rule comparison)\n\n| Method | Rule count (main -> migration) |\n|---|---|\n| (s *CartService).AddToCart | 7 -> 7 |\n| (s *CartService).GetCart | 0 -> 0 |\n| (s *CartService).RemoveFromCart | 0 -> 0 |\n| (s *OrderService).PlaceOrder | 9 -> 9 |\n| (s *ProductService).CreateProduct | 0 -> 0 |\n| (s *ProductService).DeleteProduct | 0 -> 0 |\n| (s *ProductService).GetProduct | 0 -> 0 |\n| (s *ProductService).ListProducts | 0 -> 0 |\n| (s *ProductService).UpdateProduct | 0 -> 0 |\n
+
+### impldrift validate (main baseline -> migration dir)
+
+
+Notes:
+- Signature shape failures in validate are expected (main vs migration signature differences). For business-rule drift, refer to the per-method table above (counts match when logic is equivalent).
