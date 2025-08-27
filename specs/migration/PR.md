@@ -158,3 +158,6 @@ Raw outputs above (exports and rule counts per method) are included for independ
 
 
 - Per-method AST comparison appended to [impldrift_check.md](specs/migration/impldrift_check.md) (deterministic, method-by-method).
+
+
+**Direct report link:** https://github.com/Isuru-F/example-com-go-api/blob/chore/migrate-endpoint-generics-with-impldrift/specs/migration/impldrift_check.md
