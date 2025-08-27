@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"ecom-book-store-sample-api/internal/dto"
+	"ecom-book-store-sample-api/internal/endpoint"
 	"ecom-book-store-sample-api/internal/models"
 	"ecom-book-store-sample-api/internal/storage"
 )
@@ -14,10 +15,12 @@ type ProductService struct { store *storage.MemoryStore }
 
 func NewProductService(store *storage.MemoryStore) *ProductService { return &ProductService{store: store} }
 
-// Context-aware, DTO-based signatures (legacy upgrade target style)
-func (s *ProductService) ListProducts(ctx context.Context, req *dto.ListProductsRequest) ([]*dto.Product, error) {
+// Updated endpoint-style signatures
+func (s *ProductService) ListProducts(ctx context.Context, req *endpoint.HTTPRequest[*dto.ListProductsRequest]) (*endpoint.HTTPResponse[[]*dto.Product], error) {
 	_ = ctx // not used yet
-	return s.store.GetAllProducts()
+	items, err := s.store.GetAllProducts()
+	if err != nil { return nil, err }
+	return &endpoint.HTTPResponse[[]*dto.Product]{Body: items}, nil
 }
 
 func validateProductInput(title, author, description string, price float64, stock int) error {
@@ -31,33 +34,40 @@ func validateProductInput(title, author, description string, price float64, stoc
 	return nil
 }
 
-func (s *ProductService) CreateProduct(ctx context.Context, req *dto.CreateProductRequest) (*dto.Product, error) {
+func (s *ProductService) CreateProduct(ctx context.Context, req *endpoint.HTTPRequest[*dto.CreateProductRequest]) (*endpoint.HTTPResponse[*dto.Product], error) {
 	_ = ctx
-	if err := validateProductInput(req.Title, req.Author, req.Description, req.Price, req.Stock); err != nil {
+	if err := validateProductInput(req.Body.Title, req.Body.Author, req.Body.Description, req.Body.Price, req.Body.Stock); err != nil {
 		return nil, err
 	}
-	p := &models.Product{Title: req.Title, Author: req.Author, Description: req.Description, Price: req.Price, Stock: req.Stock, Discontinued: req.Discontinued, IsSpecial: req.IsSpecial}
-	return s.store.CreateProduct(p)
+	p := &models.Product{Title: req.Body.Title, Author: req.Body.Author, Description: req.Body.Description, Price: req.Body.Price, Stock: req.Body.Stock, Discontinued: req.Body.Discontinued, IsSpecial: req.Body.IsSpecial}
+	out, err := s.store.CreateProduct(p)
+	if err != nil { return nil, err }
+	return &endpoint.HTTPResponse[*dto.Product]{Body: out}, nil
 }
 
-func (s *ProductService) GetProduct(ctx context.Context, req *dto.GetProductRequest) (*dto.Product, error) {
+func (s *ProductService) GetProduct(ctx context.Context, req *endpoint.HTTPRequest[*dto.GetProductRequest]) (*endpoint.HTTPResponse[*dto.Product], error) {
 	_ = ctx
-	return s.store.GetProductByID(req.ID)
+	p, err := s.store.GetProductByID(req.Body.ID)
+	if err != nil { return nil, err }
+	return &endpoint.HTTPResponse[*dto.Product]{Body: p}, nil
 }
 
-func (s *ProductService) UpdateProduct(ctx context.Context, req *dto.UpdateProductRequest) (*dto.Product, error) {
+func (s *ProductService) UpdateProduct(ctx context.Context, req *endpoint.HTTPRequest[*dto.UpdateProductRequest]) (*endpoint.HTTPResponse[*dto.Product], error) {
 	_ = ctx
-	if err := validateProductInput(req.Title, req.Author, req.Description, req.Price, req.Stock); err != nil {
+	if err := validateProductInput(req.Body.Title, req.Body.Author, req.Body.Description, req.Body.Price, req.Body.Stock); err != nil {
 		return nil, err
 	}
-	p := &models.Product{Title: req.Title, Author: req.Author, Description: req.Description, Price: req.Price, Stock: req.Stock, Discontinued: req.Discontinued, IsSpecial: req.IsSpecial}
-	return s.store.UpdateProduct(req.ID, p)
+	p := &models.Product{Title: req.Body.Title, Author: req.Body.Author, Description: req.Body.Description, Price: req.Body.Price, Stock: req.Body.Stock, Discontinued: req.Body.Discontinued, IsSpecial: req.Body.IsSpecial}
+	out, err := s.store.UpdateProduct(req.Body.ID, p)
+	if err != nil { return nil, err }
+	return &endpoint.HTTPResponse[*dto.Product]{Body: out}, nil
 }
 
-func (s *ProductService) DeleteProduct(ctx context.Context, req *dto.DeleteProductRequest) error {
+func (s *ProductService) DeleteProduct(ctx context.Context, req *endpoint.HTTPRequest[*dto.DeleteProductRequest]) (*endpoint.HTTPResponse[struct{}], error) {
 	_ = ctx
-	if s.store.IsProductInAnyCart(req.ID) {
-		return errors.New("product is present in carts")
+	if s.store.IsProductInAnyCart(req.Body.ID) {
+		return nil, errors.New("product is present in carts")
 	}
-	return s.store.DeleteProduct(req.ID)
+	if err := s.store.DeleteProduct(req.Body.ID); err != nil { return nil, err }
+	return &endpoint.HTTPResponse[struct{}]{Body: struct{}{}}, nil
 }

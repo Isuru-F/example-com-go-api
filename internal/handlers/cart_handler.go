@@ -8,6 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"ecom-book-store-sample-api/internal/dto"
+	"ecom-book-store-sample-api/internal/endpoint"
 	"ecom-book-store-sample-api/internal/services"
 )
 
@@ -50,9 +51,9 @@ func (h *CartHandler) AddToCart(c *gin.Context) {
 	var body addToCartRequest
 	if err := c.ShouldBindJSON(&body); err != nil { c.JSON(http.StatusBadRequest, gin.H{"error": "invalid body"}); return }
 	req := &dto.AddToCartRequest{UserID: userID, ProductID: body.ProductID, Quantity: body.Quantity}
-	cart, err := h.svc.AddToCart(c.Request.Context(), req)
+	resp, err := h.svc.AddToCart(c.Request.Context(), &endpoint.HTTPRequest[*dto.AddToCartRequest]{Body: req})
 	if err != nil { c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()}); return }
-	c.JSON(http.StatusOK, cart)
+	c.JSON(http.StatusOK, resp.Body)
 }
 
 func (h *CartHandler) RemoveFromCart(c *gin.Context) {
@@ -62,7 +63,7 @@ func (h *CartHandler) RemoveFromCart(c *gin.Context) {
 	var body removeFromCartRequest
 	if err := c.ShouldBindJSON(&body); err != nil { c.JSON(http.StatusBadRequest, gin.H{"error": "invalid body"}); return }
 	req := &dto.RemoveFromCartRequest{UserID: userID, ProductID: body.ProductID}
-	cart, err := h.svc.RemoveFromCart(c.Request.Context(), req)
+	resp, err := h.svc.RemoveFromCart(c.Request.Context(), &endpoint.HTTPRequest[*dto.RemoveFromCartRequest]{Body: req})
 	if err != nil { c.JSON(http.StatusNotFound, gin.H{"error": err.Error()}); return }
-	c.JSON(http.StatusOK, cart)
+	c.JSON(http.StatusOK, resp.Body)
 }

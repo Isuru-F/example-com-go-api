@@ -1,0 +1,479 @@
+{
+  "methods": [
+    {
+      "file": "internal/services/cart_service.go",
+      "receiver": "(s *CartService)",
+      "name": "AddToCart",
+      "paramsRaw": "(ctx context.Context, req *endpoint.HTTPRequest[*dto.AddToCartRequest])",
+      "resultsRaw": "(*endpoint.HTTPResponse[*dto.Cart], error)"
+    },
+    {
+      "file": "internal/services/cart_service.go",
+      "receiver": "(s *CartService)",
+      "name": "RemoveFromCart",
+      "paramsRaw": "(ctx context.Context, req *endpoint.HTTPRequest[*dto.RemoveFromCartRequest])",
+      "resultsRaw": "(*endpoint.HTTPResponse[*dto.Cart], error)"
+    },
+    {
+      "file": "internal/services/cart_service.go",
+      "receiver": "(s *CartService)",
+      "name": "GetCart",
+      "paramsRaw": "(ctx context.Context, req *endpoint.HTTPRequest[*dto.GetCartRequest])",
+      "resultsRaw": "(*endpoint.HTTPResponse[*dto.Cart], error)"
+    },
+    {
+      "file": "internal/services/order_service.go",
+      "receiver": "(s *OrderService)",
+      "name": "PlaceOrder",
+      "paramsRaw": "(ctx context.Context, req *endpoint.HTTPRequest[*dto.PlaceOrderRequest])",
+      "resultsRaw": "(*endpoint.HTTPResponse[*dto.Order], error)"
+    },
+    {
+      "file": "internal/services/product_service.go",
+      "receiver": "(s *ProductService)",
+      "name": "ListProducts",
+      "paramsRaw": "(ctx context.Context, req *endpoint.HTTPRequest[*dto.ListProductsRequest])",
+      "resultsRaw": "(*endpoint.HTTPResponse[[]*dto.Product], error)"
+    },
+    {
+      "file": "internal/services/product_service.go",
+      "receiver": "(s *ProductService)",
+      "name": "CreateProduct",
+      "paramsRaw": "(ctx context.Context, req *endpoint.HTTPRequest[*dto.CreateProductRequest])",
+      "resultsRaw": "(*endpoint.HTTPResponse[*dto.Product], error)"
+    },
+    {
+      "file": "internal/services/product_service.go",
+      "receiver": "(s *ProductService)",
+      "name": "GetProduct",
+      "paramsRaw": "(ctx context.Context, req *endpoint.HTTPRequest[*dto.GetProductRequest])",
+      "resultsRaw": "(*endpoint.HTTPResponse[*dto.Product], error)"
+    },
+    {
+      "file": "internal/services/product_service.go",
+      "receiver": "(s *ProductService)",
+      "name": "UpdateProduct",
+      "paramsRaw": "(ctx context.Context, req *endpoint.HTTPRequest[*dto.UpdateProductRequest])",
+      "resultsRaw": "(*endpoint.HTTPResponse[*dto.Product], error)"
+    },
+    {
+      "file": "internal/services/product_service.go",
+      "receiver": "(s *ProductService)",
+      "name": "DeleteProduct",
+      "paramsRaw": "(ctx context.Context, req *endpoint.HTTPRequest[*dto.DeleteProductRequest])",
+      "resultsRaw": "(*endpoint.HTTPResponse[struct{}], error)"
+    }
+  ],
+  "rules": {
+    "(s *CartService).AddToCart": [
+      {
+        "file": "internal/services/cart_service.go",
+        "line": 20,
+        "left": "err",
+        "op": "!=",
+        "right": "nil"
+      },
+      {
+        "file": "internal/services/cart_service.go",
+        "line": 23,
+        "left": "err",
+        "op": "!=",
+        "right": "nil"
+      },
+      {
+        "file": "internal/services/cart_service.go",
+        "line": 26,
+        "left": "it.ProductID",
+        "op": "==",
+        "right": "req.Body.ProductID"
+      },
+      {
+        "file": "internal/services/cart_service.go",
+        "line": 27,
+        "left": "!found",
+        "op": "\u0026\u0026",
+        "right": "len(cart.Items) \u003e= MaxDistinctCartItems"
+      },
+      {
+        "file": "internal/services/cart_service.go",
+        "line": 27,
+        "left": "len(cart.Items)",
+        "op": "\u003e=",
+        "right": "MaxDistinctCartItems"
+      },
+      {
+        "file": "internal/services/cart_service.go",
+        "line": 30,
+        "left": "it.ProductID",
+        "op": "==",
+        "right": "req.Body.ProductID"
+      },
+      {
+        "file": "internal/services/cart_service.go",
+        "line": 31,
+        "left": "currentQty+req.Body.Quantity",
+        "op": "\u003e",
+        "right": "MaxQuantityPerLineItem"
+      },
+      {
+        "file": "internal/services/cart_service.go",
+        "line": 31,
+        "left": "currentQty",
+        "op": "+",
+        "right": "req.Body.Quantity"
+      },
+      {
+        "file": "internal/services/cart_service.go",
+        "line": 32,
+        "left": "p.Stock",
+        "op": "\u003c",
+        "right": "currentQty+req.Body.Quantity"
+      },
+      {
+        "file": "internal/services/cart_service.go",
+        "line": 32,
+        "left": "currentQty",
+        "op": "+",
+        "right": "req.Body.Quantity"
+      },
+      {
+        "file": "internal/services/cart_service.go",
+        "line": 33,
+        "left": "p.Stock \u003c 3",
+        "op": "\u0026\u0026",
+        "right": "currentQty+req.Body.Quantity \u003e 1"
+      },
+      {
+        "file": "internal/services/cart_service.go",
+        "line": 33,
+        "left": "p.Stock",
+        "op": "\u003c",
+        "right": "3"
+      },
+      {
+        "file": "internal/services/cart_service.go",
+        "line": 33,
+        "left": "currentQty+req.Body.Quantity",
+        "op": "\u003e",
+        "right": "1"
+      },
+      {
+        "file": "internal/services/cart_service.go",
+        "line": 33,
+        "left": "currentQty",
+        "op": "+",
+        "right": "req.Body.Quantity"
+      },
+      {
+        "file": "internal/services/cart_service.go",
+        "line": 37,
+        "left": "sumQty+req.Body.Quantity",
+        "op": "\u003e",
+        "right": "MaxTotalItemsInCart"
+      },
+      {
+        "file": "internal/services/cart_service.go",
+        "line": 37,
+        "left": "sumQty",
+        "op": "+",
+        "right": "req.Body.Quantity"
+      },
+      {
+        "file": "internal/services/cart_service.go",
+        "line": 42,
+        "left": "price",
+        "op": "==",
+        "right": "0"
+      },
+      {
+        "file": "internal/services/cart_service.go",
+        "line": 43,
+        "left": "float64(it.Quantity)",
+        "op": "*",
+        "right": "price"
+      },
+      {
+        "file": "internal/services/cart_service.go",
+        "line": 45,
+        "left": "float64(req.Body.Quantity)",
+        "op": "*",
+        "right": "p.Price"
+      },
+      {
+        "file": "internal/services/cart_service.go",
+        "line": 46,
+        "left": "total",
+        "op": "\u003e",
+        "right": "CartRiskLimitTotal"
+      },
+      {
+        "file": "internal/services/cart_service.go",
+        "line": 48,
+        "left": "err",
+        "op": "!=",
+        "right": "nil"
+      }
+    ],
+    "(s *CartService).GetCart": [
+      {
+        "file": "internal/services/cart_service.go",
+        "line": 62,
+        "left": "err",
+        "op": "!=",
+        "right": "nil"
+      }
+    ],
+    "(s *CartService).RemoveFromCart": [
+      {
+        "file": "internal/services/cart_service.go",
+        "line": 55,
+        "left": "err",
+        "op": "!=",
+        "right": "nil"
+      }
+    ],
+    "(s *OrderService).PlaceOrder": [
+      {
+        "file": "internal/services/order_service.go",
+        "line": 21,
+        "left": "len(orders)",
+        "op": "\u003e",
+        "right": "0"
+      },
+      {
+        "file": "internal/services/order_service.go",
+        "line": 22,
+        "left": "len(orders)",
+        "op": "-",
+        "right": "1"
+      },
+      {
+        "file": "internal/services/order_service.go",
+        "line": 23,
+        "left": "time.Since(last.CreatedAt)",
+        "op": "\u003c=",
+        "right": "time.Duration(DuplicateOrderWindowSec)*time.Second"
+      },
+      {
+        "file": "internal/services/order_service.go",
+        "line": 23,
+        "left": "time.Duration(DuplicateOrderWindowSec)",
+        "op": "*",
+        "right": "time.Second"
+      },
+      {
+        "file": "internal/services/order_service.go",
+        "line": 29,
+        "left": "err",
+        "op": "!=",
+        "right": "nil"
+      },
+      {
+        "file": "internal/services/order_service.go",
+        "line": 30,
+        "left": "len(cart.Items)",
+        "op": "==",
+        "right": "0"
+      },
+      {
+        "file": "internal/services/order_service.go",
+        "line": 32,
+        "left": "len(cart.Items)",
+        "op": "\u003e",
+        "right": "1"
+      },
+      {
+        "file": "internal/services/order_service.go",
+        "line": 35,
+        "left": "err",
+        "op": "!=",
+        "right": "nil"
+      },
+      {
+        "file": "internal/services/order_service.go",
+        "line": 42,
+        "left": "err",
+        "op": "!=",
+        "right": "nil"
+      },
+      {
+        "file": "internal/services/order_service.go",
+        "line": 43,
+        "left": "it.Quantity",
+        "op": "\u003c=",
+        "right": "0"
+      },
+      {
+        "file": "internal/services/order_service.go",
+        "line": 44,
+        "left": "p.IsSpecial",
+        "op": "\u0026\u0026",
+        "right": "it.Quantity != 1"
+      },
+      {
+        "file": "internal/services/order_service.go",
+        "line": 44,
+        "left": "it.Quantity",
+        "op": "!=",
+        "right": "1"
+      },
+      {
+        "file": "internal/services/order_service.go",
+        "line": 45,
+        "left": "it.UnitPrice != 0",
+        "op": "\u0026\u0026",
+        "right": "it.UnitPrice != p.Price"
+      },
+      {
+        "file": "internal/services/order_service.go",
+        "line": 45,
+        "left": "it.UnitPrice",
+        "op": "!=",
+        "right": "0"
+      },
+      {
+        "file": "internal/services/order_service.go",
+        "line": 45,
+        "left": "it.UnitPrice",
+        "op": "!=",
+        "right": "p.Price"
+      },
+      {
+        "file": "internal/services/order_service.go",
+        "line": 46,
+        "left": "p.Stock",
+        "op": "\u003c",
+        "right": "it.Quantity"
+      },
+      {
+        "file": "internal/services/order_service.go",
+        "line": 47,
+        "left": "float64(it.Quantity)",
+        "op": "*",
+        "right": "p.Price"
+      },
+      {
+        "file": "internal/services/order_service.go",
+        "line": 49,
+        "left": "total",
+        "op": "\u003c",
+        "right": "MinOrderAmount"
+      },
+      {
+        "file": "internal/services/order_service.go",
+        "line": 59,
+        "left": "todayTotal+total",
+        "op": "\u003e",
+        "right": "DailyUserSpendCap"
+      },
+      {
+        "file": "internal/services/order_service.go",
+        "line": 59,
+        "left": "todayTotal",
+        "op": "+",
+        "right": "total"
+      },
+      {
+        "file": "internal/services/order_service.go",
+        "line": 62,
+        "left": "err",
+        "op": "!=",
+        "right": "nil"
+      },
+      {
+        "file": "internal/services/order_service.go",
+        "line": 63,
+        "left": "order.Total",
+        "op": "\u003e",
+        "right": "HighValueReviewThreshold"
+      },
+      {
+        "file": "internal/services/order_service.go",
+        "line": 67,
+        "left": "err",
+        "op": "!=",
+        "right": "nil"
+      }
+    ],
+    "(s *ProductService).CreateProduct": [
+      {
+        "file": "internal/services/product_service.go",
+        "line": 39,
+        "left": "err",
+        "op": "!=",
+        "right": "nil"
+      },
+      {
+        "file": "internal/services/product_service.go",
+        "line": 44,
+        "left": "err",
+        "op": "!=",
+        "right": "nil"
+      }
+    ],
+    "(s *ProductService).DeleteProduct": [
+      {
+        "file": "internal/services/product_service.go",
+        "line": 71,
+        "left": "err",
+        "op": "!=",
+        "right": "nil"
+      }
+    ],
+    "(s *ProductService).GetProduct": [
+      {
+        "file": "internal/services/product_service.go",
+        "line": 51,
+        "left": "err",
+        "op": "!=",
+        "right": "nil"
+      }
+    ],
+    "(s *ProductService).ListProducts": [
+      {
+        "file": "internal/services/product_service.go",
+        "line": 22,
+        "left": "err",
+        "op": "!=",
+        "right": "nil"
+      }
+    ],
+    "(s *ProductService).UpdateProduct": [
+      {
+        "file": "internal/services/product_service.go",
+        "line": 57,
+        "left": "err",
+        "op": "!=",
+        "right": "nil"
+      },
+      {
+        "file": "internal/services/product_service.go",
+        "line": 62,
+        "left": "err",
+        "op": "!=",
+        "right": "nil"
+      }
+    ]
+  },
+  "exports": [
+    "CartService.AddToCart",
+    "CartService.GetCart",
+    "CartService.RemoveFromCart",
+    "OrderService.PlaceOrder",
+    "ProductService.CreateProduct",
+    "ProductService.DeleteProduct",
+    "ProductService.GetProduct",
+    "ProductService.ListProducts",
+    "ProductService.UpdateProduct"
+  ],
+  "consts": {
+    "CartRiskLimitTotal": 5000,
+    "DailyUserSpendCap": 10000,
+    "DuplicateOrderWindowSec": 5,
+    "HighValueReviewThreshold": 3000,
+    "MaxDistinctCartItems": 3,
+    "MaxQuantityPerLineItem": 5,
+    "MaxTotalItemsInCart": 10,
+    "MinOrderAmount": 5
+  }
+}
