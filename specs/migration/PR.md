@@ -155,3 +155,6 @@ Raw outputs above (exports and rule counts per method) are included for independ
 - Build & Test: `go build ./...`, `go test ./...` (outputs included above).
 - AST validation: `impldrift` (tree-sitter-go) — baseline extracted from c685680c5, and validated current and intentionally modified worktree.
 - Raw data included: exported method sets and per-method rule counts (pretty-printed), and the full validator output from the drift test.
+
+
+- Per-method AST comparison appended to [impldrift_check.md](specs/migration/impldrift_check.md) (deterministic, method-by-method).
