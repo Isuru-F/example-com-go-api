@@ -1,0 +1,178 @@
+{
+  "extractionDate": "2025-09-15",
+  "version": "v0-pre-sig",
+  "totalServices": 3,
+  "totalMethods": 9,
+  "totalBusinessLogicPatterns": 90,
+  "services": {
+    "ProductService": {
+      "file": "/Users/isurufonseka/code/example-com-go-api/internal/services/product_service.go",
+      "methods": {
+        "ListProducts": {
+          "signature": "ListProducts(ctx context.Context, req *dto.ListProductsRequest) ([]*dto.Product, error)",
+          "complexity": 0,
+          "riskScore": 0,
+          "businessRules": []
+        },
+        "CreateProduct": {
+          "signature": "CreateProduct(ctx context.Context, req *dto.CreateProductRequest) (*dto.Product, error)",
+          "complexity": 3,
+          "riskScore": 10,
+          "businessRules": [
+            "Price, req.Stock); err != nil {",
+            "Stock); err != nil {"
+          ],
+          "usesValidation": "validateProductInput"
+        },
+        "GetProduct": {
+          "signature": "GetProduct(ctx context.Context, req *dto.GetProductRequest) (*dto.Product, error)",
+          "complexity": 0,
+          "riskScore": 0,
+          "businessRules": []
+        },
+        "UpdateProduct": {
+          "signature": "UpdateProduct(ctx context.Context, req *dto.UpdateProductRequest) (*dto.Product, error)",
+          "complexity": 3,
+          "riskScore": 10,
+          "businessRules": [
+            "Price, req.Stock); err != nil {",
+            "Stock); err != nil {"
+          ],
+          "usesValidation": "validateProductInput"
+        },
+        "DeleteProduct": {
+          "signature": "DeleteProduct(ctx context.Context, req *dto.DeleteProductRequest) error",
+          "complexity": 2,
+          "riskScore": 3,
+          "businessRules": [],
+          "conditionals": ["if s.store.IsProductInAnyCart(req.ID)"],
+          "errorHandling": ["return errors.New(\"product is present in carts\")"]
+        }
+      },
+      "validationFunctions": {
+        "validateProductInput": {
+          "signature": "validateProductInput(title, author, description string, price float64, stock int) error",
+          "complexity": 18,
+          "riskScore": 10,
+          "criticalRules": [
+            "price < 0.01 || price > 10000 { return errors.New(\"price out of bounds\") }",
+            "stock < 0 || stock > 10000 { return errors.New(\"invalid stock\") }"
+          ],
+          "validations": [
+            "len(title) > 200",
+            "len(description) > 2000",
+            "price < 0.01",
+            "price > 10000",
+            "stock < 0",
+            "stock > 10000"
+          ]
+        }
+      }
+    },
+    "CartService": {
+      "file": "/Users/isurufonseka/code/example-com-go-api/internal/services/cart_service.go",
+      "methods": {
+        "AddToCart": {
+          "signature": "AddToCart(ctx context.Context, req *dto.AddToCartRequest) (*dto.Cart, error)",
+          "complexity": 29,
+          "riskScore": 10,
+          "businessRules": [
+            "price := it.UnitPrice",
+            "price == 0 { price = p.Price }",
+            "Quantity > MaxQuantityPerLineItem { return nil, errors.New(\"quantity exceeds per-item limit\") }",
+            "Quantity > 1 { return nil, errors.New(\"low-stock item limited to 1 per order\") }",
+            "Quantity > MaxTotalItemsInCart { return nil, errors.New(\"cart has too many items\") }",
+            "Stock < currentQty+req.Quantity { return nil, errors.New(\"insufficient stock for requested quantity\") }",
+            "Stock < 3 && currentQty+req.Quantity > 1 { return nil, errors.New(\"low-stock item limited to 1 per order\") }"
+          ],
+          "conditionals": [
+            "if err != nil",
+            "if p.Discontinued",
+            "if it.ProductID == req.ProductID",
+            "if !found && len(cart.Items) >= MaxDistinctCartItems",
+            "if currentQty+req.Quantity > MaxQuantityPerLineItem",
+            "if p.Stock < currentQty+req.Quantity",
+            "if p.Stock < 3 && currentQty+req.Quantity > 1",
+            "if sumQty+req.Quantity > MaxTotalItemsInCart",
+            "if price == 0",
+            "if total > CartRiskLimitTotal"
+          ],
+          "validations": [
+            "Stock < 3",
+            "Quantity > 1",
+            "price == 0"
+          ]
+        },
+        "RemoveFromCart": {
+          "signature": "RemoveFromCart(ctx context.Context, req *dto.RemoveFromCartRequest) (*dto.Cart, error)",
+          "complexity": 0,
+          "riskScore": 0,
+          "businessRules": []
+        },
+        "GetCart": {
+          "signature": "GetCart(ctx context.Context, req *dto.GetCartRequest) (*dto.Cart, error)",
+          "complexity": 0,
+          "riskScore": 0,
+          "businessRules": []
+        }
+      }
+    },
+    "OrderService": {
+      "file": "/Users/isurufonseka/code/example-com-go-api/internal/services/order_service.go",
+      "methods": {
+        "PlaceOrder": {
+          "signature": "PlaceOrder(ctx context.Context, req *dto.PlaceOrderRequest) (*dto.Order, error)",
+          "complexity": 35,
+          "riskScore": 10,
+          "businessRules": [
+            "Quantity <= 0 { return nil, errors.New(\"invalid cart item quantity\") }",
+            "Quantity != 1 { return nil, errors.New(\"special items must have quantity 1\") }",
+            "Stock < it.Quantity { return nil, errors.New(\"insufficient stock for product\") }"
+          ],
+          "conditionals": [
+            "if len(orders) > 0",
+            "if time.Since(last.CreatedAt) <= time.Duration(DuplicateOrderWindowSec)*time.Second",
+            "if err != nil",
+            "if len(cart.Items) == 0",
+            "if len(cart.Items) > 1",
+            "if p.IsSpecial",
+            "if it.Quantity <= 0",
+            "if p.IsSpecial && it.Quantity != 1",
+            "if it.UnitPrice != 0 && it.UnitPrice != p.Price",
+            "if p.Stock < it.Quantity",
+            "if total < MinOrderAmount",
+            "if sameDay(now, o.CreatedAt)",
+            "if todayTotal+total > DailyUserSpendCap",
+            "if order.Total > HighValueReviewThreshold"
+          ],
+          "validations": [
+            "len(orders) > 0",
+            "len(cart.Items) == 0",
+            "len(cart.Items) > 1",
+            "Quantity <= 0",
+            "Quantity != 1",
+            "UnitPrice != 0"
+          ],
+          "duplicateOrderPrevention": true,
+          "spendingLimits": true,
+          "specialItemRules": true
+        }
+      }
+    }
+  },
+  "businessRuleConstants": {
+    "MaxDistinctCartItems": 3,
+    "MaxQuantityPerLineItem": 5,
+    "MaxTotalItemsInCart": 10,
+    "CartRiskLimitTotal": 5000.0,
+    "MinOrderAmount": 5.0,
+    "HighValueReviewThreshold": 3000.0,
+    "DailyUserSpendCap": 10000.0,
+    "DuplicateOrderWindowSec": 5,
+    "ProductPriceMin": 0.01,
+    "ProductPriceMax": 10000,
+    "ProductStockMax": 10000,
+    "ProductTitleMaxLength": 200,
+    "ProductDescriptionMaxLength": 2000
+  }
+}

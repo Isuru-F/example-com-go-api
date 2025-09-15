@@ -8,6 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"ecom-book-store-sample-api/internal/dto"
+	"ecom-book-store-sample-api/internal/endpoint"
 	"ecom-book-store-sample-api/internal/services"
 )
 
@@ -49,10 +50,11 @@ func (h *CartHandler) AddToCart(c *gin.Context) {
 	if !allowCartOp(userID, 10, time.Minute) { c.JSON(http.StatusTooManyRequests, gin.H{"error": "too many cart updates"}); return }
 	var body addToCartRequest
 	if err := c.ShouldBindJSON(&body); err != nil { c.JSON(http.StatusBadRequest, gin.H{"error": "invalid body"}); return }
-	req := &dto.AddToCartRequest{UserID: userID, ProductID: body.ProductID, Quantity: body.Quantity}
-	cart, err := h.svc.AddToCart(c.Request.Context(), req)
+	reqData := &dto.AddToCartRequest{UserID: userID, ProductID: body.ProductID, Quantity: body.Quantity}
+	req := endpoint.NewHTTPRequest(reqData)
+	resp, err := h.svc.AddToCart(c.Request.Context(), req)
 	if err != nil { c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()}); return }
-	c.JSON(http.StatusOK, cart)
+	c.JSON(http.StatusOK, resp.Data)
 }
 
 func (h *CartHandler) RemoveFromCart(c *gin.Context) {
@@ -61,8 +63,9 @@ func (h *CartHandler) RemoveFromCart(c *gin.Context) {
 	if !allowCartOp(userID, 10, time.Minute) { c.JSON(http.StatusTooManyRequests, gin.H{"error": "too many cart updates"}); return }
 	var body removeFromCartRequest
 	if err := c.ShouldBindJSON(&body); err != nil { c.JSON(http.StatusBadRequest, gin.H{"error": "invalid body"}); return }
-	req := &dto.RemoveFromCartRequest{UserID: userID, ProductID: body.ProductID}
-	cart, err := h.svc.RemoveFromCart(c.Request.Context(), req)
+	reqData := &dto.RemoveFromCartRequest{UserID: userID, ProductID: body.ProductID}
+	req := endpoint.NewHTTPRequest(reqData)
+	resp, err := h.svc.RemoveFromCart(c.Request.Context(), req)
 	if err != nil { c.JSON(http.StatusNotFound, gin.H{"error": err.Error()}); return }
-	c.JSON(http.StatusOK, cart)
+	c.JSON(http.StatusOK, resp.Data)
 }
