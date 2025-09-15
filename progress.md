@@ -6,20 +6,31 @@
 
 ## Overall Progress: 0% Complete
 
-### Phase 0: Baseline Establishment ⏳
+### Phase 0: Tool Validation ⏳
+**Status:** Not Started  
+**Progress:** 0/4 tasks complete
+
+- [ ] Test `parser-go` tool extracts expected symbols from service files
+- [ ] Test `bizlint-go` tool detects rule drift correctly  
+- [ ] Validate tool integration with our codebase structure
+- [ ] Document tool usage patterns for our specific codebase
+
+**Notes:** Must validate external tools work with our codebase before migration.
+
+### Phase 1: Baseline Establishment ⏳
 **Status:** Not Started  
 **Progress:** 0/6 tasks complete
 
 - [ ] Tag current state as `v0-pre-sig`
-- [ ] Create `tools/logicmap` CLI tool for business rule extraction
-- [ ] Run baseline extraction
-- [ ] Commit `logic_maps/baseline.json`
-- [ ] Generate `docs/business-rules.md`
+- [ ] Run baseline extraction using `bizlint-go extract --pkg=internal/services`
+- [ ] Create `logic_maps/` directory and commit `baseline.json`
+- [ ] Generate `docs/business-rules.md` from extracted rules
 - [ ] Verify all tests pass
+- [ ] Validate baseline can detect future changes
 
-**Notes:** Initial planning complete. Ready to begin implementation.
+**Notes:** Baseline establishment after tool validation passes.
 
-### Phase 1: Introduce Generic Transport Types ⏳
+### Phase 2: Introduce Generic Transport Types ⏳
 **Status:** Not Started  
 **Progress:** 0/4 tasks complete
 
@@ -28,37 +39,40 @@
 - [ ] Add build tag support
 - [ ] Verify build passes
 
-### Phase 2: Handler Migration ⏳
+### Phase 3: Handler Migration ⏳
 **Status:** Not Started  
 **Progress:** 0/4 tasks complete
 
-- [ ] Update handlers under `phase2` build tag
+- [ ] Update handlers under `phase3` build tag
 - [ ] Maintain backward compatibility
 - [ ] Test both code paths
 - [ ] Verify tagged builds
 
-### Phase 3: Service-by-Service Migration ⏳
+### Phase 4: Service-by-Service Migration ⏳
 **Status:** Not Started  
 **Progress:** 0/4 tasks complete
 
-#### Phase 3a: ProductService
+#### Phase 4a: ProductService
 - [ ] Delete legacy signatures
 - [ ] Rename EP methods
 - [ ] Update tests
+- [ ] Run `bizlint-go ci` validation
 
-#### Phase 3b: CartService  
+#### Phase 4b: CartService  
 - [ ] Delete legacy signatures
 - [ ] Rename EP methods
 - [ ] Update tests
+- [ ] Run `bizlint-go ci` validation
 
-#### Phase 3c: OrderService
+#### Phase 4c: OrderService
 - [ ] Delete legacy signatures
 - [ ] Rename EP methods  
 - [ ] Update tests
+- [ ] Run `bizlint-go ci` validation
 
 - [ ] Verify all service migrations
 
-### Phase 4: Cleanup ⏳
+### Phase 5: Cleanup ⏳
 **Status:** Not Started  
 **Progress:** 0/5 tasks complete
 
@@ -68,13 +82,14 @@
 - [ ] Run `go mod tidy`
 - [ ] Final verification
 
-### Phase 5: Post-Migration Validation ⏳
+### Phase 6: Post-Migration Validation ⏳
 **Status:** Not Started  
-**Progress:** 0/4 tasks complete
+**Progress:** 0/5 tasks complete
 
-- [ ] Run business logic validation
-- [ ] Compare against baseline
+- [ ] Run final business logic validation using `bizlint-go ci`
+- [ ] Compare against baseline rules to ensure zero drift
 - [ ] Verify scope compliance
+- [ ] Generate final migration report
 - [ ] Tag final state
 
 ## Blockers & Issues
@@ -92,14 +107,15 @@
 
 ## Timeline
 
-- **Phase 0:** TBD
-- **Phase 1:** TBD  
-- **Phase 2:** TBD
-- **Phase 3:** TBD
-- **Phase 4:** TBD
-- **Phase 5:** TBD
+- **Phase 0:** Tool Validation - TBD
+- **Phase 1:** Baseline Establishment - TBD  
+- **Phase 2:** Generic Transport Types - TBD
+- **Phase 3:** Handler Migration - TBD
+- **Phase 4:** Service Migration - TBD
+- **Phase 5:** Cleanup - TBD
+- **Phase 6:** Final Validation - TBD
 
 ## Last Updated
 **Date:** September 15, 2025  
 **By:** Migration Agent  
-**Changes:** Initial setup and planning documentation
+**Changes:** Updated plan to include Phase 0 tool validation and utilize existing bizlint-go/parser-go tools
