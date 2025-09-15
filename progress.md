@@ -14,6 +14,7 @@
 - [ ] Test `bizlint-go` tool detects rule drift correctly  
 - [ ] Validate tool integration with our codebase structure
 - [ ] Document tool usage patterns for our specific codebase
+- [ ] Verify project compiles and tests pass before starting migration
 
 **Notes:** Must validate external tools work with our codebase before migration.
 
@@ -25,7 +26,7 @@
 - [ ] Run baseline extraction using `bizlint-go extract --pkg=internal/services`
 - [ ] Create `logic_maps/` directory and commit `baseline.json`
 - [ ] Generate `docs/business-rules.md` from extracted rules
-- [ ] Verify all tests pass
+- [ ] Verify all tests pass and project compiles
 - [ ] Validate baseline can detect future changes
 
 **Notes:** Baseline establishment after tool validation passes.
@@ -37,7 +38,7 @@
 - [ ] Create `internal/endpoint` package
 - [ ] Generate shim wrappers for all service methods
 - [ ] Add build tag support
-- [ ] Verify build passes
+- [ ] Verify build passes and tests continue to pass
 
 ### Phase 3: Handler Migration ⏳
 **Status:** Not Started  
